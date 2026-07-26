@@ -26,6 +26,8 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - phpunit/phpunit (PHPUNIT) - v12
 - tailwindcss (TAILWINDCSS) - v4
 
+To better understand the project, refer to `.agents/README.md`.
+
 ## Skills Activation
 
 This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
