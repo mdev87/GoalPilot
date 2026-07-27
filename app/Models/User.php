@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -55,5 +57,49 @@ class User extends Authenticatable
         return Str::length($initials) > 1
             ? Str::substr($initials, 0, 1).Str::substr($initials, -1)
             : $initials;
+    }
+
+    /**
+     * Get the goals for the user.
+     *
+     * @return HasMany<Goal, $this>
+     */
+    public function goals(): HasMany
+    {
+        return $this->hasMany(Goal::class);
+    }
+
+    /**
+     * Get the weeks for the user.
+     *
+     * @return HasMany<Week, $this>
+     */
+    public function weeks(): HasMany
+    {
+        return $this->hasMany(Week::class);
+    }
+
+    /**
+     * Get the currently active (unlocked) week for the user.
+     *
+     * @return HasOne<Week, $this>
+     */
+    public function activeWeek(): HasOne
+    {
+        return $this->hasOne(Week::class)->ofMany([
+            'id' => 'max',
+        ], function ($query) {
+            $query->whereNull('locked_at');
+        });
+    }
+
+    /**
+     * Get the activity streak record for the user.
+     *
+     * @return HasOne<UserActivityStreak, $this>
+     */
+    public function streak(): HasOne
+    {
+        return $this->hasOne(UserActivityStreak::class);
     }
 }
