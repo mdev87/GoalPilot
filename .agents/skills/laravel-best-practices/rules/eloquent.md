@@ -30,9 +30,18 @@ $articles = Article::whereHas('user', function ($q) {
 
 Correct:
 ```php
-public function scopeActive(Builder $query): Builder
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+
+/**
+ * Scope query to active users.
+ *
+ * @param  Builder<User>  $query
+ */
+#[Scope]
+public function active(Builder $query): void
 {
-    return $query->where('verified', true)->whereNotNull('activated_at');
+    $query->where('verified', true)->whereNotNull('activated_at');
 }
 
 // Usage
@@ -58,9 +67,10 @@ class PublishedScope implements Scope
 
 Correct (local scope you opt into):
 ```php
-public function scopePublished(Builder $query): Builder
+#[Scope]
+public function published(Builder $query): void
 {
-    return $query->where('published', true);
+    $query->where('published', true);
 }
 
 Post::published()->paginate(); // Explicit
