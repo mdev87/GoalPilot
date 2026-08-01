@@ -177,6 +177,11 @@
 - **Reference**: Discussion on reasonable upper limit for weekly time
 - **Date**: 2026-07-24
 
+### Decision #34: Goal and Week User Ownership Matching Rule
+- **Decision**: All Goals added to a Week's `WeeklyGoalPlan` must belong to the exact same user who owns the `Week`. Users cannot attach another user's goal to their own week, nor modify/log time against another user's goals or plans.
+- **Reason**: Enforces strict user data boundary and privacy rules across model factories, action validation, policies, and Livewire components.
+- **Date**: 2026-07-27
+
 ## Technical Implementation Decisions
 
 ### Decision #29: Time Storage in Minutes
