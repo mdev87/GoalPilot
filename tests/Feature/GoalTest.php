@@ -49,14 +49,32 @@ class GoalTest extends TestCase
         ]);
     }
 
-    public function test_user_can_archive_and_unarchive_a_goal(): void
+    public function test_user_can_archive_a_goal_not_in_active_week(): void
     {
         $goal = Goal::factory()->create();
 
         (new ArchiveGoal)->execute($goal);
+
         $this->assertTrue($goal->fresh()->isArchived());
+    }
+
+    public function test_goal_allocated_in_active_week_cannot_be_archived(): void
+    {
+        $goal = Goal::factory()->create();
+        WeeklyGoalPlan::factory()->create(['goal_id' => $goal->id]);
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('allocated in your current week\'s plan');
+
+        (new ArchiveGoal)->execute($goal);
+    }
+
+    public function test_user_can_unarchive_a_goal(): void
+    {
+        $goal = Goal::factory()->create(['archived_at' => now()]);
 
         (new UnarchiveGoal)->execute($goal);
+
         $this->assertFalse($goal->fresh()->isArchived());
     }
 

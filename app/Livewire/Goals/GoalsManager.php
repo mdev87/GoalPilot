@@ -95,8 +95,12 @@ class GoalsManager extends Component
     {
         $this->authorize('archive', $goal);
 
-        $archiveGoal->execute($goal);
-        $this->errorMessage = null;
+        try {
+            $archiveGoal->execute($goal);
+            $this->errorMessage = null;
+        } catch (DomainException $e) {
+            $this->errorMessage = $e->getMessage();
+        }
     }
 
     /**

@@ -80,6 +80,16 @@ class Goal extends Model
     }
 
     /**
+     * Check if this goal is allocated in any active (unlocked) week plan.
+     */
+    public function isAllocatedInActiveWeek(): bool
+    {
+        return $this->weeklyGoalPlans()
+            ->whereHas('week', fn (Builder $query) => $query->whereNull('locked_at'))
+            ->exists();
+    }
+
+    /**
      * Get the user that owns the goal.
      *
      * @return BelongsTo<User, $this>
