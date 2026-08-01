@@ -20,7 +20,7 @@ class TimeEntryPolicy
      */
     public function update(User $user, TimeEntry $timeEntry): bool
     {
-        return $user->id === $timeEntry->weeklyGoalPlan->week->user_id && ! $timeEntry->weeklyGoalPlan->week->isLocked();
+        return $user->id === $timeEntry->weeklyGoalPlan->week->user_id;
     }
 
     /**
@@ -28,6 +28,6 @@ class TimeEntryPolicy
      */
     public function delete(User $user, TimeEntry $timeEntry): bool
     {
-        return $user->id === $timeEntry->weeklyGoalPlan->week->user_id && ! $timeEntry->weeklyGoalPlan->week->isLocked();
+        return $user->id === $timeEntry->weeklyGoalPlan->week->user_id;
     }
 }

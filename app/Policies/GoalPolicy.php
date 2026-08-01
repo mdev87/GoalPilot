@@ -44,7 +44,7 @@ class GoalPolicy
      */
     public function delete(User $user, Goal $goal): bool
     {
-        return $user->id === $goal->user_id && $goal->canBeDeleted();
+        return $user->id === $goal->user_id;
     }
 
     /**

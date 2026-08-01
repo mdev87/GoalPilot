@@ -36,7 +36,7 @@ class WeekPolicy
      */
     public function update(User $user, Week $week): bool
     {
-        return $user->id === $week->user_id && ! $week->isLocked();
+        return $user->id === $week->user_id;
     }
 
     /**
@@ -44,6 +44,6 @@ class WeekPolicy
      */
     public function delete(User $user, Week $week): bool
     {
-        return $user->id === $week->user_id && ! $week->isLocked();
+        return $user->id === $week->user_id;
     }
 }

@@ -20,7 +20,7 @@ class WeeklyGoalPlanPolicy
      */
     public function update(User $user, WeeklyGoalPlan $weeklyGoalPlan): bool
     {
-        return $user->id === $weeklyGoalPlan->week->user_id && ! $weeklyGoalPlan->week->isLocked();
+        return $user->id === $weeklyGoalPlan->week->user_id;
     }
 
     /**
@@ -28,6 +28,6 @@ class WeeklyGoalPlanPolicy
      */
     public function delete(User $user, WeeklyGoalPlan $weeklyGoalPlan): bool
     {
-        return $user->id === $weeklyGoalPlan->week->user_id && ! $weeklyGoalPlan->week->isLocked();
+        return $user->id === $weeklyGoalPlan->week->user_id;
     }
 }
