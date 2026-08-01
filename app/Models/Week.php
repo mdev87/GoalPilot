@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Database\Factories\WeekFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -72,6 +73,22 @@ class Week extends Model
     public function isLocked(): bool
     {
         return $this->locked_at !== null;
+    }
+
+    /**
+     * Get the end date of the week (6 days after start date).
+     */
+    public function getEndDate(): CarbonInterface
+    {
+        return Carbon::parse($this->week_start_date)->addDays(6);
+    }
+
+    /**
+     * Check if the week timeframe has completed (ended).
+     */
+    public function hasEnded(): bool
+    {
+        return now()->startOfDay()->greaterThan($this->getEndDate()->startOfDay());
     }
 
     /**

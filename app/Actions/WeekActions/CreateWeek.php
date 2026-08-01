@@ -27,10 +27,14 @@ class CreateWeek
             throw new InvalidArgumentException("Planned minutes must be between {$min} and {$max}.");
         }
 
+        $startDate = is_string($weekStartDate) ? Carbon::parse($weekStartDate)->toDateString() : $weekStartDate->toDateString();
+
+        if ($user->weeks()->whereDate('week_start_date', $startDate)->exists()) {
+            throw new InvalidArgumentException("A week starting on {$startDate} already exists for your account.");
+        }
+
         // Lock any currently active week for the user
         $user->weeks()->whereNull('locked_at')->update(['locked_at' => now()]);
-
-        $startDate = is_string($weekStartDate) ? Carbon::parse($weekStartDate)->toDateString() : $weekStartDate->toDateString();
 
         $week = Week::create([
             'user_id' => $user->id,
