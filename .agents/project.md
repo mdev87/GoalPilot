@@ -19,19 +19,19 @@ This project has three purposes:
 
 ## MVP Features
 
-| Feature | Status |
-|---|---|
-| Email/password authentication | ✅ Done (Livewire starter kit) |
-| Google Sign-In | ✅ Done |
-| Goals (CRUD + archive + delete) | ✅ Done |
-| Weekly planning (create week, set priorities) | ✅ Done |
-| WeeklyGoalPlans (priority per goal per week) | ✅ Done |
-| Time entries (log time against goals) | ✅ Done |
-| Dashboard (current week status) | ⬜ Not started |
-| Statistics (per-week, trend) | ⬜ Not started |
-| AI weekly analysis (on user request) | ⬜ Not started |
-| Activity streak | ⬜ Not started |
-| Heatmap (GitHub-style) | ⬜ Not started |
+| Feature                                       | Status                                                                                                                     |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Email/password authentication                 | ✅ Done                                                                                                                    |
+| Google Sign-In                                | ✅ Done                                                                                                                    |
+| Goals (CRUD + archive + delete)               | ✅ Done                                                                                                                    |
+| Weekly planning (create week, set priorities) | ✅ Done                                                                                                                    |
+| WeeklyGoalPlans (priority per goal per week)  | ✅ Done                                                                                                                    |
+| Time entries (log time against goals)         | ✅ Done                                                                                                                    |
+| Dashboard (current week status)               | 🟡 Partial — the dashboard route and shell exist, but the page still uses placeholder cards instead of real weekly metrics |
+| Statistics (per-week, trend)                  | ⬜ Not started                                                                                                             |
+| AI weekly analysis (on user request)          | ⬜ Not started                                                                                                             |
+| Activity streak                               | 🟡 Partial — the data model and event listener are implemented, but the UI badge and heatmap are still pending             |
+| Heatmap (GitHub-style)                        | ⬜ Not started                                                                                                             |
 
 ## Out of Scope (for now)
 
@@ -46,18 +46,18 @@ This project has three purposes:
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | Laravel 13, PHP 8.5 |
-| Database | PostgreSQL (dev), SQLite (tests) |
-| Frontend | Livewire 4, Volt, Flux UI, Tailwind CSS 4 |
-| Testing | PHPUnit, SQLite in-memory |
-| AI | Laravel AI SDK |
-| Auth | Laravel Fortify (email/password) + Socialite (Google) |
-| Calendar | morilog/jalali (Persian calendar) |
-| Code style | Laravel Pint (laravel preset) |
-| Static analysis | PHPStan level 7 (Larastan) |
-| Dev tools | Laravel Boost (MCP server for AI assistants) |
+| Layer           | Technology                                            |
+| --------------- | ----------------------------------------------------- |
+| Backend         | Laravel 13, PHP 8.5                                   |
+| Database        | PostgreSQL (dev), SQLite (tests)                      |
+| Frontend        | Livewire 4, Volt, Flux UI, Tailwind CSS 4             |
+| Testing         | PHPUnit, SQLite in-memory                             |
+| AI              | Laravel AI SDK                                        |
+| Auth            | Laravel Fortify (email/password) + Socialite (Google) |
+| Calendar        | morilog/jalali (Persian calendar)                     |
+| Code style      | Laravel Pint (laravel preset)                         |
+| Static analysis | PHPStan level 7 (Larastan)                            |
+| Dev tools       | Laravel Boost (MCP server for AI assistants)          |
 
 ## Domain Model
 
