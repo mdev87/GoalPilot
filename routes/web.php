@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\GoogleController;
-use App\Livewire\Dashboard\DashboardOverview;
+use App\Livewire\Dashboard\Dashboard;
 use App\Livewire\Goals\GoalsManager;
 use App\Livewire\TimeEntries\TimeLogger;
 use App\Livewire\Weeks\WeekPlanner;
@@ -15,7 +15,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', DashboardOverview::class)->name('dashboard');
+    Route::get('dashboard', Dashboard::class)->name('dashboard');
     Route::get('goals', GoalsManager::class)->name('goals.index');
     Route::get('weeks', WeekPlanner::class)->name('weeks.index');
     Route::get('time-entries', TimeLogger::class)->name('time-entries.index');
