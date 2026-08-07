@@ -26,6 +26,8 @@ use Illuminate\Support\Str;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read Week|null $activeWeek
+ * @property-read UserActivityStreak $streak
  */
 #[Fillable(['name', 'email', 'password', 'google_id', 'avatar'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
@@ -86,11 +88,9 @@ class User extends Authenticatable
      */
     public function activeWeek(): HasOne
     {
-        return $this->hasOne(Week::class)->ofMany([
-            'id' => 'max',
-        ], function ($query) {
-            $query->whereNull('locked_at');
-        });
+        return $this->hasOne(Week::class)
+            ->whereNull('locked_at')
+            ->latestOfMany('id');
     }
 
     /**

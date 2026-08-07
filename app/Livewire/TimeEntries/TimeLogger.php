@@ -6,6 +6,7 @@ use App\Actions\TimeEntryActions\CreateTimeEntry;
 use App\Actions\TimeEntryActions\DeleteTimeEntry;
 use App\Actions\TimeEntryActions\UpdateTimeEntry;
 use App\Models\TimeEntry;
+use App\Models\Week;
 use App\Models\WeeklyGoalPlan;
 use DomainException;
 use Illuminate\Contracts\View\View;
@@ -150,10 +151,15 @@ class TimeLogger extends Component
 
     public function render(): View
     {
-        $activeWeek = auth()->user()->activeWeek;
-        $plans = $activeWeek ? $activeWeek->weeklyGoalPlans()->with('goal', 'timeEntries')->get() : collect();
+        /** @var Week */
+        $activeWeek = auth()->guard()->user()->activeWeek;
+        $plans = $activeWeek?->weeklyGoalPlans()->with('goal', 'timeEntries')->get() ?? collect();
+        $plans->each->setRelation('week', $activeWeek);
 
-        $recentEntries = $activeWeek ? $activeWeek->timeEntries()->with('weeklyGoalPlan.goal')->latest()->get() : collect();
+        $recentEntries = $activeWeek?->timeEntries()
+            ->with(['weeklyGoalPlan.goal'])
+            ->latest()
+            ->get() ?? collect();
 
         return view('pages.time-entries', [
             'activeWeek' => $activeWeek,

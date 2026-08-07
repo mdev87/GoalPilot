@@ -2,15 +2,23 @@
 
 namespace App\Actions\DashboardActions;
 
+use App\Actions\StatisticsActions\GetTrendStats;
+use App\Actions\StatisticsActions\GetWeeklyStats;
 use App\Models\User;
 use App\Models\Week;
-use App\Models\WeeklyGoalPlan;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection;
 
 class GetDashboardData
 {
+    public function __construct(
+        private GetWeeklyStats $getWeeklyStats,
+        private GetTrendStats $getTrendStats
+    ) {}
+
     /**
-     * Aggregate dashboard summary data for the given user.
+     * Aggregate complete unified dashboard and statistics data for the user.
      *
      * @return array{
      *     active_week: Week|null,
@@ -27,59 +35,96 @@ class GetDashboardData
      *     }>,
      *     current_streak: int,
      *     longest_streak: int,
-     *     recent_time_entries: Collection
+     *     recent_time_entries: Collection,
+     *     weekly_stats: array{
+     *         total_weeks: int,
+     *         locked_weeks_count: int,
+     *         average_completion_percentage: float,
+     *         weekly_trends: Collection<int, array{
+     *             id: int,
+     *             week_start_date: string,
+     *             end_date: string,
+     *             planned_minutes: int,
+     *             logged_minutes: int,
+     *             completion_percentage: float,
+     *             is_locked: bool
+     *         }>
+     *     },
+     *     trend_stats: array{
+     *         total_historical_logged_minutes: int,
+     *         goal_distributions: Collection<int, array{
+     *             id: int,
+     *             name: string,
+     *             total_logged_minutes: int,
+     *             percentage_of_total_time: float,
+     *             is_archived: bool
+     *         }>
+     *     }
      * }
      */
-    public function execute(User $user): array
+    public function execute(User $user, int $timeframeWeeks = 8): array
     {
-        /** @var Week|null $activeWeek */
-        $activeWeek = $user->weeks()
-            ->active()
-            ->with(['weeklyGoalPlans.goal', 'weeklyGoalPlans.timeEntries'])
-            ->latest('id')
-            ->first();
+        $weeks = $user->weeks()
+            ->with([
+                'weeklyGoalPlans' => fn (HasMany $query) => $query->with('goal')
+                    ->withSum('timeEntries', 'duration_in_minutes'),
+            ])
+            ->latest('week_start_date')
+            ->take($timeframeWeeks)
+            ->get()
+            ->reverse()
+            ->values();
+
+        $activeWeek = $weeks->whereNull('locked_at')->first();
+        $activeWeek->load([
+            'timeEntries' => fn (HasManyThrough $query) => $query->limit(5)
+                ->latest('datetime'),
+        ]);
 
         $totalPlannedMinutes = $activeWeek ? $activeWeek->planned_minutes : 0;
         $totalLoggedMinutes = 0;
         $goalBreakdown = collect();
 
-        if ($activeWeek) {
-            /** @var Collection<int, WeeklyGoalPlan> $plans */
-            $plans = $activeWeek->weeklyGoalPlans;
+        $activeWeek?->weeklyGoalPlans->each(function ($plan) use ($activeWeek, $goalBreakdown, &$totalLoggedMinutes) {
+            $plan->setRelation('week', $activeWeek);
 
-            foreach ($plans as $plan) {
-                $logged = $plan->logged_minutes;
-                $allocated = $plan->allocated_minutes;
-                $totalLoggedMinutes += $logged;
+            $logged = $plan->logged_minutes;
+            $allocated = $plan->allocated_minutes;
+            $totalLoggedMinutes += $logged;
 
-                $completionPercentage = $allocated > 0
-                    ? round(($logged / $allocated) * 100, 1)
-                    : 0.0;
+            $completionPercentage = $allocated > 0
+                ? round(($logged / $allocated) * 100, 1)
+                : 0.0;
 
-                $goalBreakdown->push([
-                    'id' => $plan->goal->id,
-                    'name' => $plan->goal->name,
-                    'priority_percentage' => (float) $plan->priority_percentage,
-                    'allocated_minutes' => $allocated,
-                    'logged_minutes' => $logged,
-                    'completion_percentage' => $completionPercentage,
-                ]);
-            }
-        }
+            $goalBreakdown->push([
+                'id' => $plan->goal->id,
+                'name' => $plan->goal->name,
+                'priority_percentage' => (float) $plan->priority_percentage,
+                'allocated_minutes' => $allocated,
+                'logged_minutes' => $logged,
+                'completion_percentage' => $completionPercentage,
+            ]);
+        });
 
         $overallCompletionPercentage = $totalPlannedMinutes > 0
             ? round(($totalLoggedMinutes / $totalPlannedMinutes) * 100, 1)
             : 0.0;
 
-        $streak = $user->streak;
+        $goalsByPlanId = $activeWeek->weeklyGoalPlans->keyBy('id');
+        $recentEntries = $activeWeek->timeEntries->map(function ($timeEntry) use ($goalsByPlanId) {
+            $plan = $goalsByPlanId->get($timeEntry->weekly_goal_plan_id);
 
-        $recentEntries = $user->weeks()
-            ->with(['weeklyGoalPlans.goal', 'weeklyGoalPlans.timeEntries' => fn($query) => $query->latest('datetime')])
-            ->get()
-            ->flatMap(fn(Week $w) => $w->timeEntries)
-            ->sortByDesc('datetime')
-            ->take(5)
-            ->values();
+            if ($plan && $plan->relationLoaded('goal')) {
+                $timeEntry->setRelation('goal', $plan->goal);
+            }
+
+            return $timeEntry;
+        })
+            ->sortDesc()
+            ->take(5);
+
+        $weeklyStats = $this->getWeeklyStats->execute($weeks);
+        $trendStats = $this->getTrendStats->execute($weeks);
 
         return [
             'active_week' => $activeWeek,
@@ -87,9 +132,11 @@ class GetDashboardData
             'total_logged_minutes' => $totalLoggedMinutes,
             'overall_completion_percentage' => $overallCompletionPercentage,
             'goal_breakdown' => $goalBreakdown,
-            'current_streak' => $streak ? $streak->current_streak : 0,
-            'longest_streak' => $streak ? $streak->longest_streak : 0,
+            'current_streak' => $user->streak->current_streak,
+            'longest_streak' => $user->streak->longest_streak,
             'recent_time_entries' => $recentEntries,
+            'weekly_stats' => $weeklyStats,
+            'trend_stats' => $trendStats,
         ];
     }
 }
