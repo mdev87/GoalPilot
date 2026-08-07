@@ -215,3 +215,8 @@
 - **Reason**: Gives users both detailed and longitudinal views of their performance
 - **Reference**: Statistics discussion
 - **Date**: 2026-07-24
+
+### Decision #35: Unified Dashboard & Chart.js Integration
+- **Decision**: Consolidate the Statistics page directly into the main Dashboard view (`/dashboard`) as an appended "Analytics & Execution Trends" section. Use Chart.js (configured via TypeScript `resources/js/app.ts` and `dashboard-charts.ts`) with Livewire's `morphed` hook for instant, interactive chart re-renders upon timeframe switching (`4W`, `8W`, `12W`, `52W`).
+- **Reason**: Eliminates sparse sub-pages, unifies goal execution tracking into a single personal productivity dashboard, and provides visual progress analytics.
+- **Date**: 2026-08-08

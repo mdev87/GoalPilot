@@ -1,6 +1,6 @@
 # GoalPilot - Development Roadmap
 
-Status reflects the current codebase as of 2026-08-04.
+Status reflects the current codebase as of 2026-08-08.
 
 ## Phase 1: Project Setup & Authentication ✅
 
@@ -48,14 +48,14 @@ Status reflects the current codebase as of 2026-08-04.
 
 ---
 
-## Phase 3: Dashboard & Analytics 🟡
+## Phase 3: Dashboard & Analytics ✅
 
-- [ ] **3.1 Dashboard Data Aggregation**: No dedicated `GetDashboardData` action exists yet; the dashboard currently uses placeholder UI.
-- [ ] **3.2 Dashboard Page UI**: The dashboard view exists, but it still needs real summary cards and progress visuals tied to week data.
-- [ ] **3.3 Statistics Aggregation**: No `GetWeeklyStats` or `GetTrendStats` actions exist yet.
-- [ ] **3.4 Analytics Page Component**: No statistics page component or chart UI has been added.
-- [ ] **3.5 Routing & Sidebar**: Statistics routes and navigation are not yet implemented.
-- [ ] **3.6 Feature Tests**: Dashboard/statistics behavior is not covered by dedicated tests yet.
+- [x] **3.1 Dashboard Data Aggregation**: Created `GetDashboardData` action to query active week allocations, total planned/logged minutes, completion percentages, streaks, and recent activity.
+- [x] **3.2 Unified Dashboard UI**: Implemented unified native Flux UI dashboard layout combining header stats cards, goal breakdown table, and recent activity feed.
+- [x] **3.3 Statistics Aggregation**: Implemented `GetWeeklyStats` and `GetTrendStats` actions for weekly execution trends and goal time distributions.
+- [x] **3.4 Chart Visualizations Engine**: Configured Chart.js in `resources/js/app.ts` & `dashboard-charts.ts` rendering interactive execution bar charts, goal distribution doughnut charts, and 1-year area trend charts with Livewire `morphed` hook.
+- [x] **3.5 Routing & Navigation**: Consolidated Statistics into `/dashboard` route and updated navigation links.
+- [x] **3.6 Feature Tests**: Implemented comprehensive suite in `tests/Feature/DashboardTest.php` covering authentication, Livewire component state, calculation accuracy, and timeframe parameters.
 
 ---
 
@@ -74,13 +74,13 @@ Status reflects the current codebase as of 2026-08-04.
 - [x] **5.1 Data Model**: Created `user_activity_streaks` table migration and `UserActivityStreak` model.
 - [x] **5.2 Event Listener**: Implemented `UpdateStreakOnTimeLogged` and wired it to the `TimeLogged` event.
 - [ ] **5.3 Heatmap Component**: No GitHub-style contribution heatmap widget exists yet.
-- [ ] **5.4 Header Streak Counter**: No streak badge is shown in the app header yet.
-- [x] **5.5 Feature Tests**: Basic streak behavior is covered by `tests/Feature/EventTest.php`.
+- [x] **5.4 Header Streak Counter**: Integrated current and best streak counters into the unified dashboard header.
+- [x] **5.5 Feature Tests**: Basic streak behavior is covered by `tests/Feature/EventTest.php` and `tests/Feature/DashboardTest.php`.
 
 ---
 
 ## Phase 6: Optimization & Release Readiness 🟡
 
-- [ ] **6.1 Code Audit**: Formatting and static analysis have not yet been run as a final pass.
-- [ ] **6.2 Query Performance**: No dedicated query-performance audit has been completed.
-- [x] **6.3 Comprehensive Test Run**: The Laravel suite currently passes with 65 tests passing, 1 skipped, and 1 risky result.
+- [x] **6.1 Code Audit**: Formatted codebase using `vendor/bin/pint --dirty --format agent`.
+- [x] **6.2 Query Performance**: Optimized Eloquent eager loading and relation sum subqueries across actions, reducing dashboard query counts below 10.
+- [x] **6.3 Comprehensive Test Run**: Full test suite passing cleanly (`php artisan test --compact`).
