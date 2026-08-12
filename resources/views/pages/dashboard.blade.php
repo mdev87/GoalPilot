@@ -36,6 +36,124 @@
         </div>
     </div>
 
+    {{-- AI Insights Hero Section --}}
+    <div
+        class="rounded-xl border border-indigo-200 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/30 dark:from-zinc-800 dark:via-zinc-800 dark:to-indigo-950/30 p-6 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                    <flux:icon icon="sparkles" class="size-6" />
+                </div>
+                <div>
+                    <flux:heading size="lg" class="font-bold flex items-center gap-2">
+                        {{ __('AI Weekly Performance Insights') }}
+                        @if ($aiAnalysis)
+                            <flux:badge color="emerald" variant="solid" size="sm">
+                                {{ __('Rating: :score/10', ['score' => $aiAnalysis['execution_score']]) }}
+                            </flux:badge>
+                        @endif
+                    </flux:heading>
+                    <flux:subheading>
+                        {{ __('Get an on-demand, intelligent analysis of your goal progress, achievements, and improvement areas.') }}
+                    </flux:subheading>
+                </div>
+            </div>
+
+            <div>
+                <flux:button wire:click="generateAiAnalysis" variant="primary"
+                    class="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-500"
+                    :loading="false">
+                    <span wire:loading.remove wire:target="generateAiAnalysis" class="flex gap-2 items-center">
+                        <flux:icon icon="sparkles" class="size-5" />
+                        {{ $aiAnalysis ? __('Refresh AI Insights') : __('Generate AI Insights') }}
+                    </span>
+                    <span wire:loading.flex wire:target="generateAiAnalysis" class="flex gap-2 items-center">
+                        <flux:icon icon="arrow-path" class="animate-spin size-5" />
+                        {{ __('Analyzing Performance...') }}
+                    </span>
+                </flux:button>
+            </div>
+        </div>
+
+        @if ($aiErrorMessage)
+            <div
+                class="p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 text-sm flex items-center gap-2">
+                <flux:icon icon="exclamation-triangle" class="size-5 shrink-0 text-red-500" />
+                <span>{{ $aiErrorMessage }}</span>
+            </div>
+        @endif
+
+        @if ($aiAnalysis)
+            <div class="space-y-6 pt-2">
+                {{-- Executive Summary --}}
+                <div
+                    class="p-5 rounded-lg bg-white/90 dark:bg-zinc-800/90 border border-zinc-200 dark:border-zinc-700 space-y-2">
+                    <p class="font-semibold text-base text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                        <flux:icon icon="document-text" class="size-5 text-indigo-600 dark:text-indigo-400" />
+                        {{ __('Executive Summary') }}
+                    </p>
+                    <p class="text-base leading-relaxed text-zinc-800 dark:text-zinc-200">
+                        {{ $aiAnalysis['summary'] }}
+                    </p>
+                </div>
+
+                {{-- Structured Breakdown Grids --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    {{-- Achievements --}}
+                    <div
+                        class="p-5 rounded-lg bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/50 space-y-3">
+                        <div class="flex items-center gap-2 font-bold text-emerald-900 dark:text-emerald-200 text-base">
+                            <flux:icon icon="check-circle" class="size-5 text-emerald-600 dark:text-emerald-400" />
+                            {{ __('Key Achievements') }}
+                        </div>
+                        <ul class="space-y-2 text-sm text-zinc-800 dark:text-zinc-200">
+                            @foreach ($aiAnalysis['achievements'] as $item)
+                                <li class="flex items-start gap-2">
+                                    <span class="text-emerald-500 font-bold">•</span>
+                                    <span>{{ $item }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+
+                    {{-- Areas for Improvement --}}
+                    <div
+                        class="p-5 rounded-lg bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 space-y-3">
+                        <div class="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-200 text-base">
+                            <flux:icon icon="exclamation-circle" class="size-5 text-amber-600 dark:text-amber-400" />
+                            {{ __('Areas for Improvement') }}
+                        </div>
+                        <ul class="space-y-2 text-sm text-zinc-800 dark:text-zinc-200">
+                            @foreach ($aiAnalysis['areas_for_improvement'] as $item)
+                                <li class="flex items-start gap-2">
+                                    <span class="text-amber-500 font-bold">•</span>
+                                    <span>{{ $item }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+
+                    {{-- Actionable Recommendations --}}
+                    <div
+                        class="p-5 rounded-lg bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/50 space-y-3">
+                        <div class="flex items-center gap-2 font-bold text-blue-900 dark:text-blue-200 text-base">
+                            <flux:icon icon="light-bulb" class="size-5 text-blue-600 dark:text-blue-400" />
+                            {{ __('Recommendations') }}
+                        </div>
+                        <ul class="space-y-2 text-sm text-zinc-800 dark:text-zinc-200">
+                            @foreach ($aiAnalysis['actionable_recommendations'] as $item)
+                                <li class="flex items-start gap-2">
+                                    <span class="text-blue-500 font-bold">•</span>
+                                    <span>{{ $item }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+
     <flux:separator variant="subtle" />
 
     {{-- Stats Cards --}}
@@ -253,12 +371,14 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <flux:button wire:click="setTimeframe(4)" variant="{{ $timeframeWeeks === 4 ? 'primary' : 'subtle' }}"
-                    size="sm" class="cursor-pointer">
+                <flux:button wire:click="setTimeframe(4)"
+                    variant="{{ $timeframeWeeks === 4 ? 'primary' : 'subtle' }}" size="sm"
+                    class="cursor-pointer">
                     {{ __('4 Weeks') }}
                 </flux:button>
-                <flux:button wire:click="setTimeframe(8)" variant="{{ $timeframeWeeks === 8 ? 'primary' : 'subtle' }}"
-                    size="sm" class="cursor-pointer">
+                <flux:button wire:click="setTimeframe(8)"
+                    variant="{{ $timeframeWeeks === 8 ? 'primary' : 'subtle' }}" size="sm"
+                    class="cursor-pointer">
                     {{ __('8 Weeks') }}
                 </flux:button>
                 <flux:button wire:click="setTimeframe(12)"
