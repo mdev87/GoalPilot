@@ -11,7 +11,7 @@ use App\Models\Week;
 use DomainException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 use Livewire\Attributes\Layout;
@@ -133,11 +133,11 @@ class WeekPlanner extends Component
         $user = auth()->guard()->user();
 
         $activeWeek = $user->activeWeek;
-        $activeGoals = Goal::where('user_id', $user->id)->active()->get();
+        $activeGoals = Goal::query()->where('user_id', $user->id)->active()->get();
 
         /** @var Collection<int, Week> */
-        $pastWeeks = $user->weeks()->locked()->with([
-            'weeklyGoalPlans' => fn (HasMany $query) => $query->with('goal')
+        $pastWeeks = Week::query()->where('user_id', $user->id)->locked()->with([
+            'weeklyGoalPlans' => fn (Relation $query) => $query->with('goal')
                 ->withSum('timeEntries', 'duration_in_minutes'),
             'timeEntries',
         ])->latest('week_start_date')->get();

@@ -134,7 +134,7 @@ class GoalsManager extends Component
         /** @var User */
         $user = auth()->guard()->user();
 
-        $goalsQuery = $user->goals();
+        $goalsQuery = Goal::query()->where('user_id', $user->id);
 
         if ($this->showArchived) {
             $goalsQuery->archived();

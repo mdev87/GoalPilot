@@ -27,11 +27,11 @@ This project has three purposes:
 | Weekly planning (create week, set priorities) | ✅ Done                                                                                                                    |
 | WeeklyGoalPlans (priority per goal per week)  | ✅ Done                                                                                                                    |
 | Time entries (log time against goals)         | ✅ Done                                                                                                                    |
-| Dashboard (current week status)               | 🟡 Partial — the dashboard route and shell exist, but the page still uses placeholder cards instead of real weekly metrics |
-| Statistics (per-week, trend)                  | ⬜ Not started                                                                                                             |
+| Dashboard (current week status)               | ✅ Done — unified native Flux UI dashboard layout with goal breakdown & recent activity feed                               |
+| Statistics (per-week, trend)                  | ✅ Done — Chart.js visual execution bar charts, goal distribution doughnut charts, and multi-week trend charts          |
 | AI weekly analysis (on user request)          | ✅ Done                                                                                                                    |
-| Activity streak                               | 🟡 Partial — the data model and event listener are implemented, but the UI badge and heatmap are still pending             |
-| Heatmap (GitHub-style)                        | ⬜ Not started                                                                                                             |
+| Activity streak                               | ✅ Done — streak counter in header, automatic listener updating current & longest streak                                     |
+| Heatmap (GitHub-style)                        | ✅ Done — 52-week activity contribution heatmap component (<x-activity-heatmap />)                                         |
 
 ## Out of Scope (for now)
 

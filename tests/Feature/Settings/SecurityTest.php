@@ -56,7 +56,10 @@ class SecurityTest extends TestCase
             ->assertDontSee('Two-factor authentication');
     }
 
-    public function test_two_factor_authentication_disabled_when_confirmation_abandoned_between_requests(): void {}
+    public function test_two_factor_authentication_disabled_when_confirmation_abandoned_between_requests(): void
+    {
+        $this->markTestSkipped('Two-factor confirmation test placeholder.');
+    }
 
     public function test_password_can_be_updated(): void
     {

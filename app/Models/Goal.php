@@ -24,6 +24,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read User $user
  * @property-read Collection<int, WeeklyGoalPlan> $weeklyGoalPlans
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<\App\Models\Goal> active()
+ * @method static \Illuminate\Database\Eloquent\Builder<\App\Models\Goal> archived()
  */
 #[Fillable(['user_id', 'name', 'notes', 'archived_at'])]
 class Goal extends Model
@@ -55,12 +58,32 @@ class Goal extends Model
     }
 
     /**
+     * Scope query to active (non-archived) goals (Larastan alias).
+     *
+     * @param  Builder<Goal>  $query
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->whereNull('archived_at');
+    }
+
+    /**
      * Scope query to archived goals.
      *
      * @param  Builder<Goal>  $query
      */
     #[Scope]
     public function archived(Builder $query): void
+    {
+        $query->whereNotNull('archived_at');
+    }
+
+    /**
+     * Scope query to archived goals (Larastan alias).
+     *
+     * @param  Builder<Goal>  $query
+     */
+    public function scopeArchived(Builder $query): void
     {
         $query->whereNotNull('archived_at');
     }

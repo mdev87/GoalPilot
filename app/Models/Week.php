@@ -27,6 +27,9 @@ use Illuminate\Support\Carbon;
  * @property-read User $user
  * @property-read Collection<int, WeeklyGoalPlan> $weeklyGoalPlans
  * @property-read Collection<int, TimeEntry> $timeEntries
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<\App\Models\Week> active()
+ * @method static \Illuminate\Database\Eloquent\Builder<\App\Models\Week> locked()
  */
 #[Fillable(['user_id', 'week_start_date', 'planned_minutes', 'locked_at'])]
 class Week extends Model
@@ -60,12 +63,32 @@ class Week extends Model
     }
 
     /**
+     * Scope query to active (unlocked) weeks (Larastan alias).
+     *
+     * @param  Builder<Week>  $query
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->whereNull('locked_at');
+    }
+
+    /**
      * Scope query to locked weeks.
      *
      * @param  Builder<Week>  $query
      */
     #[Scope]
     public function locked(Builder $query): void
+    {
+        $query->whereNotNull('locked_at');
+    }
+
+    /**
+     * Scope query to locked weeks (Larastan alias).
+     *
+     * @param  Builder<Week>  $query
+     */
+    public function scopeLocked(Builder $query): void
     {
         $query->whereNotNull('locked_at');
     }

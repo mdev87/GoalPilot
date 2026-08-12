@@ -4,6 +4,7 @@ namespace App\Actions\ActivityStreakActions;
 
 use App\Models\TimeEntry;
 use App\Models\User;
+use App\Models\UserActivityStreak;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
@@ -116,8 +117,8 @@ class GetActivityHeatmapData
         $totalActiveDays = count(array_filter($dailyMinutes, fn (int $mins) => $mins > 0));
 
         $streakModel = $user->streak;
-        $currentStreak = $streakModel?->effective_current_streak ?? 0;
-        $longestStreak = $streakModel?->longest_streak ?? 0;
+        $currentStreak = $streakModel instanceof UserActivityStreak ? $streakModel->effective_current_streak : 0;
+        $longestStreak = $streakModel instanceof UserActivityStreak ? $streakModel->longest_streak : 0;
 
         return [
             'total_logged_minutes' => $totalLoggedMinutes,

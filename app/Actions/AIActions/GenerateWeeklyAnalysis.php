@@ -46,14 +46,18 @@ class GenerateWeeklyAnalysis
 
         $plansCount = $targetWeek->weeklyGoalPlans->count();
         $entriesCount = $targetWeek->weeklyGoalPlans->sum(fn (WeeklyGoalPlan $p) => $p->timeEntries->count());
-        $latestPlanTimestamp = $targetWeek->weeklyGoalPlans->max('updated_at')?->timestamp ?? 0;
-        $latestEntryTimestamp = $targetWeek->weeklyGoalPlans
+        $targetWeekUpdatedAt = $targetWeek->updated_at;
+        $latestPlanUpdated = $targetWeek->weeklyGoalPlans->max('updated_at');
+        $latestEntryUpdated = $targetWeek->weeklyGoalPlans
             ->flatMap(fn (WeeklyGoalPlan $p) => $p->timeEntries)
-            ->max('updated_at')?->timestamp ?? 0;
+            ->max('updated_at');
+
+        $latestPlanTimestamp = $latestPlanUpdated instanceof \DateTimeInterface ? $latestPlanUpdated->getTimestamp() : 0;
+        $latestEntryTimestamp = $latestEntryUpdated instanceof \DateTimeInterface ? $latestEntryUpdated->getTimestamp() : 0;
 
         $dataHash = md5(implode('|', [
             $targetWeek->id,
-            $targetWeek->updated_at?->timestamp ?? 0,
+            $targetWeekUpdatedAt instanceof \DateTimeInterface ? $targetWeekUpdatedAt->getTimestamp() : 0,
             $totalPlannedMinutes,
             $totalLoggedMinutes,
             $plansCount,
@@ -136,23 +140,27 @@ class GenerateWeeklyAnalysis
         RateLimiter::hit($rateLimitKey, decaySeconds: 86400);
 
         $agent = new WeeklyAnalysisAgent;
-        $model = env('AI_MODEL', 'openai/gpt-4o-mini');
+        /** @var string $model */
+        $model = config('ai.model', 'openai/gpt-4o-mini');
         $response = $agent->prompt($promptContext, model: $model);
 
+        /** @var array<string, mixed> $responseData */
+        $responseData = method_exists($response, 'toArray') ? $response->toArray() : (array) $response;
+
         /** @var string $summary */
-        $summary = $response['summary'] ?? '';
+        $summary = (string) ($responseData['summary'] ?? '');
 
         /** @var array<int, string> $achievements */
-        $achievements = array_values((array) ($response['achievements'] ?? []));
+        $achievements = array_values((array) ($responseData['achievements'] ?? []));
 
         /** @var array<int, string> $areasForImprovement */
-        $areasForImprovement = array_values((array) ($response['areas_for_improvement'] ?? []));
+        $areasForImprovement = array_values((array) ($responseData['areas_for_improvement'] ?? []));
 
         /** @var array<int, string> $actionableRecommendations */
-        $actionableRecommendations = array_values((array) ($response['actionable_recommendations'] ?? []));
+        $actionableRecommendations = array_values((array) ($responseData['actionable_recommendations'] ?? []));
 
         /** @var int $executionScore */
-        $executionScore = (int) ($response['execution_score'] ?? 5);
+        $executionScore = (int) ($responseData['execution_score'] ?? 5);
 
         $result = [
             'summary' => $summary,

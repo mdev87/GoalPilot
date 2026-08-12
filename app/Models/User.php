@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Week|null $activeWeek
- * @property-read UserActivityStreak $streak
+ * @property-read UserActivityStreak|null $streak
  */
 #[Fillable(['name', 'email', 'password', 'google_id', 'avatar', 'email_verified_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]

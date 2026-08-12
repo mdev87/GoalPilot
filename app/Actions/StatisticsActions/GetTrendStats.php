@@ -37,7 +37,7 @@ class GetTrendStats
 
         foreach ($weeklyPlansGroupedByGoal as $plans) {
             $goal = $plans->first()->goal;
-            $goalLoggedMinutes = $plans->sum('logged_minutes');
+            $goalLoggedMinutes = (int) $plans->sum('logged_minutes');
             $totalHistoricalLoggedMinutes += $goalLoggedMinutes;
 
             $rawGoalData->push([
@@ -48,18 +48,22 @@ class GetTrendStats
             ]);
         }
 
-        $goalDistributions = $rawGoalData->map(function ($item) use ($totalHistoricalLoggedMinutes) {
+        $goalDistributions = $rawGoalData->map(function (array $item) use ($totalHistoricalLoggedMinutes) {
             $percentage = $totalHistoricalLoggedMinutes > 0
                 ? round(($item['total_logged_minutes'] / $totalHistoricalLoggedMinutes) * 100, 1)
                 : 0.0;
 
-            return array_merge($item, [
-                'percentage_of_total_time' => $percentage,
-            ]);
+            return [
+                'id' => (int) $item['id'],
+                'name' => (string) $item['name'],
+                'total_logged_minutes' => (int) $item['total_logged_minutes'],
+                'percentage_of_total_time' => (float) $percentage,
+                'is_archived' => (bool) $item['is_archived'],
+            ];
         })->sortByDesc('total_logged_minutes')->values();
 
         return [
-            'total_historical_logged_minutes' => $totalHistoricalLoggedMinutes,
+            'total_historical_logged_minutes' => (int) $totalHistoricalLoggedMinutes,
             'goal_distributions' => $goalDistributions,
         ];
     }

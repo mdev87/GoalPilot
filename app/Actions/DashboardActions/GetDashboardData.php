@@ -5,10 +5,11 @@ namespace App\Actions\DashboardActions;
 use App\Actions\ActivityStreakActions\GetActivityHeatmapData;
 use App\Actions\StatisticsActions\GetTrendStats;
 use App\Actions\StatisticsActions\GetWeeklyStats;
+use App\Models\TimeEntry;
 use App\Models\User;
+use App\Models\UserActivityStreak;
 use App\Models\Week;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 
 class GetDashboardData
@@ -37,7 +38,7 @@ class GetDashboardData
      *     }>,
      *     current_streak: int,
      *     longest_streak: int,
-     *     recent_time_entries: Collection,
+     *     recent_time_entries: Collection<int, TimeEntry>,
      *     weekly_stats: array{
      *         total_weeks: int,
      *         locked_weeks_count: int,
@@ -68,7 +69,7 @@ class GetDashboardData
     {
         $weeks = $user->weeks()
             ->with([
-                'weeklyGoalPlans' => fn (HasMany $query) => $query->with('goal')
+                'weeklyGoalPlans' => fn (Relation $query) => $query->with('goal')
                     ->withSum('timeEntries', 'duration_in_minutes'),
             ])
             ->latest('week_start_date')
@@ -79,7 +80,7 @@ class GetDashboardData
 
         $activeWeek = $weeks->whereNull('locked_at')->first();
         $activeWeek?->load([
-            'timeEntries' => fn (HasManyThrough $query) => $query->limit(5)
+            'timeEntries' => fn (Relation $query) => $query->limit(5)
                 ->latest('datetime'),
         ]);
 
@@ -129,14 +130,16 @@ class GetDashboardData
         $trendStats = $this->getTrendStats->execute($weeks);
         $heatmapData = $this->getActivityHeatmapData->execute($user);
 
+        $streak = $user->streak;
+
         return [
             'active_week' => $activeWeek,
             'total_planned_minutes' => $totalPlannedMinutes,
             'total_logged_minutes' => $totalLoggedMinutes,
             'overall_completion_percentage' => $overallCompletionPercentage,
             'goal_breakdown' => $goalBreakdown,
-            'current_streak' => $user->streak?->effective_current_streak ?? 0,
-            'longest_streak' => $user->streak?->longest_streak ?? 0,
+            'current_streak' => $streak instanceof UserActivityStreak ? $streak->effective_current_streak : 0,
+            'longest_streak' => $streak instanceof UserActivityStreak ? $streak->longest_streak : 0,
             'recent_time_entries' => $recentEntries,
             'weekly_stats' => $weeklyStats,
             'trend_stats' => $trendStats,

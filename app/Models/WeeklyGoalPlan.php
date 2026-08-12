@@ -78,13 +78,15 @@ class WeeklyGoalPlan extends Model
 
     /**
      * Calculate allocated minutes based on week's planned minutes and priority percentage.
+     *
+     * @return Attribute<int, void>
      */
     public function allocatedMinutes(): Attribute
     {
         return Attribute::make(
             get: function (): int {
                 if ($this->relationLoaded('week')) {
-                    return round($this->week->planned_minutes * ($this->priority_percentage / 100));
+                    return (int) round($this->week->planned_minutes * ($this->priority_percentage / 100));
                 }
 
                 throw new MissingAttributeException($this, 'allocated_minutes');
@@ -94,17 +96,19 @@ class WeeklyGoalPlan extends Model
 
     /**
      * Calculate total logged minutes for this plan.
+     *
+     * @return Attribute<int, void>
      */
     public function loggedMinutes(): Attribute
     {
         return Attribute::make(
             get: function (): int {
                 if (array_key_exists('time_entries_sum_duration_in_minutes', $this->attributes)) {
-                    return $this->attributes['time_entries_sum_duration_in_minutes'] ?? 0;
+                    return (int) ($this->attributes['time_entries_sum_duration_in_minutes'] ?? 0);
                 }
 
                 if ($this->relationLoaded('timeEntries')) {
-                    return $this->timeEntries->sum('duration_in_minutes');
+                    return (int) $this->timeEntries->sum('duration_in_minutes');
                 }
 
                 throw new MissingAttributeException($this, 'logged_minutes');

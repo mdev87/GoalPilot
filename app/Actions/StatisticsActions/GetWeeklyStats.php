@@ -2,6 +2,7 @@
 
 namespace App\Actions\StatisticsActions;
 
+use App\Models\Week;
 use Illuminate\Support\Collection;
 
 class GetWeeklyStats
@@ -9,6 +10,7 @@ class GetWeeklyStats
     /**
      * Aggregate weekly statistics over a given timeframe (number of past weeks).
      *
+     * @param  Collection<int, Week>  $weeks
      * @return array{
      *     total_weeks: int,
      *     locked_weeks_count: int,
