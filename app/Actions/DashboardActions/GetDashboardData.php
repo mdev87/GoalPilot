@@ -2,6 +2,7 @@
 
 namespace App\Actions\DashboardActions;
 
+use App\Actions\ActivityStreakActions\GetActivityHeatmapData;
 use App\Actions\StatisticsActions\GetTrendStats;
 use App\Actions\StatisticsActions\GetWeeklyStats;
 use App\Models\User;
@@ -14,7 +15,8 @@ class GetDashboardData
 {
     public function __construct(
         private GetWeeklyStats $getWeeklyStats,
-        private GetTrendStats $getTrendStats
+        private GetTrendStats $getTrendStats,
+        private GetActivityHeatmapData $getActivityHeatmapData
     ) {}
 
     /**
@@ -125,6 +127,7 @@ class GetDashboardData
 
         $weeklyStats = $this->getWeeklyStats->execute($weeks);
         $trendStats = $this->getTrendStats->execute($weeks);
+        $heatmapData = $this->getActivityHeatmapData->execute($user);
 
         return [
             'active_week' => $activeWeek,
@@ -132,11 +135,12 @@ class GetDashboardData
             'total_logged_minutes' => $totalLoggedMinutes,
             'overall_completion_percentage' => $overallCompletionPercentage,
             'goal_breakdown' => $goalBreakdown,
-            'current_streak' => $user->streak->current_streak,
-            'longest_streak' => $user->streak->longest_streak,
+            'current_streak' => $user->streak?->effective_current_streak ?? 0,
+            'longest_streak' => $user->streak?->longest_streak ?? 0,
             'recent_time_entries' => $recentEntries,
             'weekly_stats' => $weeklyStats,
             'trend_stats' => $trendStats,
+            'heatmap_data' => $heatmapData,
         ];
     }
 }

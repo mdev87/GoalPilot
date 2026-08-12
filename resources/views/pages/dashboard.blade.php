@@ -154,6 +154,11 @@
         @endif
     </div>
 
+    {{-- Activity Contribution Heatmap Widget --}}
+    @if (isset($heatmap_data))
+        <x-activity-heatmap :data="$heatmap_data" />
+    @endif
+
     <flux:separator variant="subtle" />
 
     {{-- Stats Cards --}}
