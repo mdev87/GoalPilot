@@ -76,7 +76,7 @@ class GetDashboardData
             ->values();
 
         $activeWeek = $weeks->whereNull('locked_at')->first();
-        $activeWeek->load([
+        $activeWeek?->load([
             'timeEntries' => fn (HasManyThrough $query) => $query->limit(5)
                 ->latest('datetime'),
         ]);
@@ -110,8 +110,8 @@ class GetDashboardData
             ? round(($totalLoggedMinutes / $totalPlannedMinutes) * 100, 1)
             : 0.0;
 
-        $goalsByPlanId = $activeWeek->weeklyGoalPlans->keyBy('id');
-        $recentEntries = $activeWeek->timeEntries->map(function ($timeEntry) use ($goalsByPlanId) {
+        $goalsByPlanId = $activeWeek ? $activeWeek->weeklyGoalPlans->keyBy('id') : collect();
+        $recentEntries = $activeWeek ? $activeWeek->timeEntries->map(function ($timeEntry) use ($goalsByPlanId) {
             $plan = $goalsByPlanId->get($timeEntry->weekly_goal_plan_id);
 
             if ($plan && $plan->relationLoaded('goal')) {
@@ -121,7 +121,7 @@ class GetDashboardData
             return $timeEntry;
         })
             ->sortDesc()
-            ->take(5);
+            ->take(5) : collect();
 
         $weeklyStats = $this->getWeeklyStats->execute($weeks);
         $trendStats = $this->getTrendStats->execute($weeks);
