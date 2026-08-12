@@ -6,6 +6,8 @@ use App\Ai\Agents\WeeklyAnalysisAgent;
 use App\Models\User;
 use App\Models\Week;
 use App\Models\WeeklyGoalPlan;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 class GenerateWeeklyAnalysis
@@ -41,6 +43,44 @@ class GenerateWeeklyAnalysis
         $totalLoggedMinutes = $targetWeek->weeklyGoalPlans->sum(
             fn (WeeklyGoalPlan $plan) => $plan->timeEntries->sum('duration_in_minutes')
         );
+
+        $plansCount = $targetWeek->weeklyGoalPlans->count();
+        $entriesCount = $targetWeek->weeklyGoalPlans->sum(fn (WeeklyGoalPlan $p) => $p->timeEntries->count());
+        $latestPlanTimestamp = $targetWeek->weeklyGoalPlans->max('updated_at')?->timestamp ?? 0;
+        $latestEntryTimestamp = $targetWeek->weeklyGoalPlans
+            ->flatMap(fn (WeeklyGoalPlan $p) => $p->timeEntries)
+            ->max('updated_at')?->timestamp ?? 0;
+
+        $dataHash = md5(implode('|', [
+            $targetWeek->id,
+            $targetWeek->updated_at?->timestamp ?? 0,
+            $totalPlannedMinutes,
+            $totalLoggedMinutes,
+            $plansCount,
+            $entriesCount,
+            $latestPlanTimestamp,
+            $latestEntryTimestamp,
+        ]));
+
+        $cacheKey = "user_{$user->id}_week_{$targetWeek->id}_ai_analysis_{$dataHash}";
+
+        if (Cache::has($cacheKey)) {
+            /** @var array{summary: string, achievements: array<int, string>, areas_for_improvement: array<int, string>, actionable_recommendations: array<int, string>, execution_score: int} $cached */
+            $cached = Cache::get($cacheKey);
+
+            return $cached;
+        }
+
+        $rateLimitKey = 'generate-ai-analysis:'.$user->id;
+
+        if (RateLimiter::tooManyAttempts($rateLimitKey, maxAttempts: 3)) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
+            $hours = ceil($seconds / 3600);
+
+            throw ValidationException::withMessages([
+                'rate_limit' => __('You have reached the maximum limit of 3 AI analysis generations per day. Please try again in :hours hour(s).', ['hours' => $hours]),
+            ]);
+        }
 
         $overallCompletionPercentage = $totalPlannedMinutes > 0
             ? min(100, (int) round(($totalLoggedMinutes / $totalPlannedMinutes) * 100))
@@ -93,6 +133,8 @@ class GenerateWeeklyAnalysis
             ! empty($recentNotes) ? implode("\n", array_slice($recentNotes, 0, 10)) : 'No notes recorded.'
         );
 
+        RateLimiter::hit($rateLimitKey, decaySeconds: 86400);
+
         $agent = new WeeklyAnalysisAgent;
         $model = env('AI_MODEL', 'openai/gpt-4o-mini');
         $response = $agent->prompt($promptContext, model: $model);
@@ -112,12 +154,16 @@ class GenerateWeeklyAnalysis
         /** @var int $executionScore */
         $executionScore = (int) ($response['execution_score'] ?? 5);
 
-        return [
+        $result = [
             'summary' => $summary,
             'achievements' => $achievements,
             'areas_for_improvement' => $areasForImprovement,
             'actionable_recommendations' => $actionableRecommendations,
             'execution_score' => $executionScore,
         ];
+
+        Cache::put($cacheKey, $result, now()->addDays(7));
+
+        return $result;
     }
 }
