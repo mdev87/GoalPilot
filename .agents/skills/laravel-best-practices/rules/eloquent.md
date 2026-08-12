@@ -90,6 +90,21 @@ protected function casts(): array
         'total' => 'decimal:2',
     ];
 }
+
+## Use Modern Attribute Accessors / Mutators
+
+Use modern Eloquent attribute accessors and mutators with `Illuminate\Database\Eloquent\Casts\Attribute` based on the [Laravel Eloquent Mutators documentation](https://laravel.com/docs/13.x/eloquent-mutators).
+
+```php
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
+protected function firstName(): Attribute
+{
+    return Attribute::make(
+        get: fn (string $value) => ucfirst($value),
+    );
+}
+```
 ```
 
 ## Cast Date Columns Properly

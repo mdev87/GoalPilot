@@ -69,13 +69,13 @@ Status reflects the current codebase as of 2026-08-08.
 
 ---
 
-## Phase 5: Engagement & Activity Streaks 🟡
+## Phase 5: Engagement & Activity Streaks ✅
 
-- [x] **5.1 Data Model**: Created `user_activity_streaks` table migration and `UserActivityStreak` model.
+- [x] **5.1 Data Model**: Created `user_activity_streaks` table migration and `UserActivityStreak` model with `Attribute::make` syntax.
 - [x] **5.2 Event Listener**: Implemented `UpdateStreakOnTimeLogged` and wired it to the `TimeLogged` event.
-- [ ] **5.3 Heatmap Component**: No GitHub-style contribution heatmap widget exists yet.
+- [x] **5.3 Heatmap Component**: Created GitHub-style 52-week contribution heatmap widget (`<x-activity-heatmap />`) and `GetActivityHeatmapData` action.
 - [x] **5.4 Header Streak Counter**: Integrated current and best streak counters into the unified dashboard header.
-- [x] **5.5 Feature Tests**: Basic streak behavior is covered by `tests/Feature/EventTest.php` and `tests/Feature/DashboardTest.php`.
+- [x] **5.5 Feature Tests**: Comprehensive test suite in `tests/Feature/ActivityStreakTest.php` and `tests/Feature/ActivityHeatmapTest.php`.
 
 ---
 
