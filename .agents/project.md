@@ -29,7 +29,7 @@ This project has three purposes:
 | Time entries (log time against goals)         | ✅ Done                                                                                                                    |
 | Dashboard (current week status)               | 🟡 Partial — the dashboard route and shell exist, but the page still uses placeholder cards instead of real weekly metrics |
 | Statistics (per-week, trend)                  | ⬜ Not started                                                                                                             |
-| AI weekly analysis (on user request)          | ⬜ Not started                                                                                                             |
+| AI weekly analysis (on user request)          | ✅ Done                                                                                                                    |
 | Activity streak                               | 🟡 Partial — the data model and event listener are implemented, but the UI badge and heatmap are still pending             |
 | Heatmap (GitHub-style)                        | ⬜ Not started                                                                                                             |
 

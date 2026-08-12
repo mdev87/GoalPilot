@@ -59,13 +59,13 @@ Status reflects the current codebase as of 2026-08-08.
 
 ---
 
-## Phase 4: AI Insights Integration ⏳
+## Phase 4: AI Insights Integration ✅
 
-- [ ] **4.1 AI SDK Setup**: The Laravel AI SDK is installed, but no production AI agent or provider wiring has been completed.
-- [ ] **4.2 AI Agent Definition**: No `WeeklyAnalysisAgent` or structured analysis schema exists yet.
-- [ ] **4.3 Analysis Generation Action**: No analysis generation action has been implemented.
-- [ ] **4.4 On-Demand Analysis UI**: No AI insights button or modal UI exists yet.
-- [ ] **4.5 Integration Tests**: No AI response handling tests have been added.
+- [x] **4.1 AI SDK Setup**: Configured Laravel AI SDK with published `config/ai.php` supporting OpenRouter, OpenAI, and custom OpenAI-compatible providers.
+- [x] **4.2 AI Agent Definition**: Implemented `WeeklyAnalysisAgent` with structured JSON schema (`summary`, `achievements`, `areas_for_improvement`, `actionable_recommendations`, `execution_score`).
+- [x] **4.3 Analysis Generation Action**: Created `GenerateWeeklyAnalysis` action class with database data hash caching and 3-per-day rate limiting.
+- [x] **4.4 On-Demand Analysis UI**: Built dedicated AI Insights hero card section on the Dashboard with enlarged typography, loading state, and safe error masking.
+- [x] **4.5 Integration Tests**: Added comprehensive feature test suite in `tests/Feature/WeeklyAnalysisTest.php` covering generation, caching, rate limits, and safe error handling.
 
 ---
 
