@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
  * @property-read Week|null $activeWeek
  * @property-read UserActivityStreak $streak
  */
-#[Fillable(['name', 'email', 'password', 'google_id', 'avatar'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'avatar', 'email_verified_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
