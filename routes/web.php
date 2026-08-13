@@ -19,4 +19,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('time-entries', TimeLogger::class)->name('time-entries.index');
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';
